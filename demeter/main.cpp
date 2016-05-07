@@ -2,8 +2,16 @@
 #include <iostream>
 #include <fstream>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+
 #include <boost/program_options.hpp>
+#include <boost/regex.hpp>
+
+#include "slaveserver.hpp"
 
 typedef unsigned short uint16_t;
 
@@ -18,7 +26,7 @@ struct Parameters {
 };
 
 int parameters (struct Parameters *params, int argc, char **argv);
-int start(const struct Parameters &params);
+void start(const struct Parameters &params);
 
 int main(int argc, char **argv)
 {
@@ -27,9 +35,11 @@ int main(int argc, char **argv)
 		setlocale(LC_ALL, "rus");
 
 		struct Parameters params;
-		if (parameters(&params, argc, argv))
-			return 0;
 
+		//if (parameters(&params, argc, argv))
+		//	return 0;
+
+		params.serve = 10000;
 		start(params);
 	}
 	catch(std::exception& e)
@@ -87,8 +97,16 @@ int parameters (struct Parameters *params, int argc, char **argv)
 	if (vm.count("connect") && !vm.count("infile"))
 		throw std::exception("не указан файл с характеристиками генерируемого потока (ключ -i)");
 
-	if (vm.count("serve") && vm["serve"].as<uint16_t>() == 0)
+	if (vm.count("serve") && params->serve == 0)
 		throw std::exception("невозможно запустить сервер на порту 0");
+
+	if (vm.count("connect"))
+	{
+		boost::regex ip("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+		boost::match_results<std::string::const_iterator> what;
+		if(0 == boost::regex_match(params->connect, what, ip, boost::match_default))
+			throw std::exception("указан неверный IP-адрес");
+	}
 
 	if (!vm.count("serve"))
 		params->serve = 0;
@@ -96,32 +114,37 @@ int parameters (struct Parameters *params, int argc, char **argv)
 	return 0;
 }
 
-int start(const struct Parameters &params)
+void start(const struct Parameters &params)
 {
-	using namespace boost::posix_time;
-    using namespace boost::gregorian;
+	namespace kw = boost::log::keywords;
+	namespace log = boost::log;
+	namespace sinks = boost::log::sinks;
 
-	std::fstream fs;
-	fs.open(params.logfile.c_str(), std::fstream::app);
+	log::add_file_log(
+        kw::file_name = params.logfile,
+        kw::rotation_size = 10 * 1024 * 1024,
+        kw::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0),
+        kw::format = "[%TimeStamp%]: %Message%"
+    );
+	log::add_common_attributes();
 
-	if (fs.fail())
-		throw std::exception("не удалось открыть лог-файл");
-
-	ptime now = second_clock::local_time();
-	fs << "[" << to_simple_string(now) << "] Запуск Demeter v0.00\n";
+	BOOST_LOG_TRIVIAL(info) << "Запуск Demeter v0.00";
 
 	if (params.serve)
-		fs << "Режим: Slave\n"
-			<< "Порт: " << params.serve << "\n\n";
+	{
+		BOOST_LOG_TRIVIAL(info) << "Режим: Slave";
+		BOOST_LOG_TRIVIAL(info)	<< "Порт: " << params.serve;
+
+		SlaveServer ss(params.serve);
+		ss.run();
+	}
 	else
-		fs << "Режим: Master\n"
-			<< "Сетевой адрес: " << params.connect << "\n"
-			<< "Порт: " << params.port << "\n"
-			<< "Число потоков: " << params.flows << "\n"
-			<< "Активность: " << params.time << " сек\n"
-			<< "Входной файл: " << params.infile << "\n\n";
-
-	fs.close();
-
-	return 0;
+	{
+		BOOST_LOG_TRIVIAL(info) << "Режим: Master";
+		BOOST_LOG_TRIVIAL(info)	<< "Сетевой адрес: " << params.connect;
+		BOOST_LOG_TRIVIAL(info)	<< "Порт: " << params.port;
+		BOOST_LOG_TRIVIAL(info)	<< "Число потоков: " << params.flows;
+		BOOST_LOG_TRIVIAL(info)	<< "Активность: " << params.time << " сек";
+		BOOST_LOG_TRIVIAL(info)	<< "Входной файл: " << params.infile;
+	}
 }

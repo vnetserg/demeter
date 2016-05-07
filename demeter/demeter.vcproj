@@ -178,12 +178,28 @@
 				RelativePath=".\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\slaveserver.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\slavetcpconnection.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Заголовочные файлы"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\slaveserver.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\slavetcpconnection.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Файлы ресурсов"
