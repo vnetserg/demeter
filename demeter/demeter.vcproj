@@ -102,6 +102,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="-D_WIN32_WINNT=0x0601"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -175,7 +176,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\logging.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\slavegenerator.cpp"
 				>
 			</File>
 			<File
@@ -192,6 +201,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\logging.h"
+				>
+			</File>
+			<File
+				RelativePath=".\slavegenerator.hpp"
+				>
+			</File>
 			<File
 				RelativePath=".\slaveserver.hpp"
 				>

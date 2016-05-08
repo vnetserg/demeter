@@ -1,16 +1,13 @@
+#define _WIN32_WINNT 0x0601
+
 #include <string>
 #include <iostream>
 #include <fstream>
 
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
 
+#include "logging.h"
 #include "slaveserver.hpp"
 
 typedef unsigned short uint16_t;
@@ -22,7 +19,6 @@ struct Parameters {
 	uint16_t flows;
 	uint16_t time;
 	std::string infile;
-	std::string logfile;
 };
 
 int parameters (struct Parameters *params, int argc, char **argv);
@@ -35,7 +31,6 @@ int main(int argc, char **argv)
 		setlocale(LC_ALL, "rus");
 
 		struct Parameters params;
-
 		//if (parameters(&params, argc, argv))
 		//	return 0;
 
@@ -75,8 +70,6 @@ int parameters (struct Parameters *params, int argc, char **argv)
 			"сколько секунд генерировать трафик")
 		("infile,i", po::value<std::string>(&(params->infile)),
 			"файл с характеристиками генерируемого потока")
-		("logfile,l", po::value<std::string>(&(params->logfile))->default_value("demeter.log"),
-			"файл для записи лога")
     ;
 
     po::variables_map vm;        
@@ -120,31 +113,23 @@ void start(const struct Parameters &params)
 	namespace log = boost::log;
 	namespace sinks = boost::log::sinks;
 
-	log::add_file_log(
-        kw::file_name = params.logfile,
-        kw::rotation_size = 10 * 1024 * 1024,
-        kw::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0),
-        kw::format = "[%TimeStamp%]: %Message%"
-    );
-	log::add_common_attributes();
-
-	BOOST_LOG_TRIVIAL(info) << "Запуск Demeter v0.00";
+	INFO << "Запуск Demeter v0.00";
 
 	if (params.serve)
 	{
-		BOOST_LOG_TRIVIAL(info) << "Режим: Slave";
-		BOOST_LOG_TRIVIAL(info)	<< "Порт: " << params.serve;
+		INFO << "Режим: Slave";
+		INFO << "Порт: " << params.serve;
 
 		SlaveServer ss(params.serve);
 		ss.run();
 	}
 	else
 	{
-		BOOST_LOG_TRIVIAL(info) << "Режим: Master";
-		BOOST_LOG_TRIVIAL(info)	<< "Сетевой адрес: " << params.connect;
-		BOOST_LOG_TRIVIAL(info)	<< "Порт: " << params.port;
-		BOOST_LOG_TRIVIAL(info)	<< "Число потоков: " << params.flows;
-		BOOST_LOG_TRIVIAL(info)	<< "Активность: " << params.time << " сек";
-		BOOST_LOG_TRIVIAL(info)	<< "Входной файл: " << params.infile;
+		INFO << "Режим: Master";
+		INFO << "Сетевой адрес: " << params.connect;
+		INFO << "Порт: " << params.port;
+		INFO << "Число потоков: " << params.flows;
+		INFO << "Активность: " << params.time << " сек";
+		INFO << "Входной файл: " << params.infile;
 	}
 }
