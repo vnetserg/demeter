@@ -9,6 +9,7 @@
 
 #include "logging.h"
 #include "slaveserver.hpp"
+#include "mastergenerator.hpp"
 
 typedef unsigned short uint16_t;
 
@@ -31,10 +32,10 @@ int main(int argc, char **argv)
 		setlocale(LC_ALL, "rus");
 
 		struct Parameters params;
-		//if (parameters(&params, argc, argv))
-		//	return 0;
+		if (parameters(&params, argc, argv))
+			return 0;
 
-		params.serve = 10000;
+		//params.serve = 10000;
 		start(params);
 	}
 	catch(std::exception& e)
@@ -109,27 +110,29 @@ int parameters (struct Parameters *params, int argc, char **argv)
 
 void start(const struct Parameters &params)
 {
-	namespace kw = boost::log::keywords;
-	namespace log = boost::log;
-	namespace sinks = boost::log::sinks;
-
-	INFO << "Запуск Demeter v0.00";
-
 	if (params.serve)
 	{
+		SlaveServer ss(params.serve);
+
+		INFO << "Запуск Demeter v0.00";
 		INFO << "Режим: Slave";
 		INFO << "Порт: " << params.serve;
 
-		SlaveServer ss(params.serve);
 		ss.run();
 	}
 	else
 	{
+		MasterGenerator::pointer mg = MasterGenerator::create(params.connect, params.port,
+			params.flows, params.time, params.infile);
+
+		INFO << "Запуск Demeter v0.00";
 		INFO << "Режим: Master";
 		INFO << "Сетевой адрес: " << params.connect;
 		INFO << "Порт: " << params.port;
 		INFO << "Число потоков: " << params.flows;
 		INFO << "Активность: " << params.time << " сек";
 		INFO << "Входной файл: " << params.infile;
+
+		mg->run();
 	}
 }

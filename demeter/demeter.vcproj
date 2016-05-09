@@ -102,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine="-D_WIN32_WINNT=0x0601"
+				CommandLine="-D_WIN32_WINNT=0x0601&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mastergenerator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\slavegenerator.cpp"
 				>
 			</File>
@@ -203,6 +207,10 @@
 			>
 			<File
 				RelativePath=".\logging.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mastergenerator.hpp"
 				>
 			</File>
 			<File
