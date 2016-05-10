@@ -58,7 +58,7 @@ private:
 	boost::asio::io_service io_service;
 	std::string slave_json;
 
-	char buffer[2048];
+	unsigned char buffer[2048];
 	boost::posix_time::ptime base_time;
 	boost::asio::ip::udp::endpoint slave_endpoint;
 	boost::asio::deadline_timer *ttl_timer;

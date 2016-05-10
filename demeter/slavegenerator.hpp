@@ -60,5 +60,5 @@ private:
 
 	boost::posix_time::ptime base_time;
 
-	char buffer[2048];
+	unsigned char buffer[2048];
 };
