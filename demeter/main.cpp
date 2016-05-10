@@ -83,23 +83,23 @@ int parameters (struct Parameters *params, int argc, char **argv)
     }
 
 	if (vm.count("serve") && vm.count("connect"))
-		throw std::exception("нельзя одновременно быть и master'ом, и slave'ом (ключи -s и -c)");
+		throw std::runtime_error("нельзя одновременно быть и master'ом, и slave'ом (ключи -s и -c)");
 
 	if (vm.count("connect") && !vm.count("port"))
-		throw std::exception("не указан порт для соединения со slave (ключ -p)");
+		throw std::runtime_error("не указан порт для соединения со slave (ключ -p)");
 	
 	if (vm.count("connect") && !vm.count("infile"))
-		throw std::exception("не указан файл с характеристиками генерируемого потока (ключ -i)");
+		throw std::runtime_error("не указан файл с характеристиками генерируемого потока (ключ -i)");
 
 	if (vm.count("serve") && params->serve == 0)
-		throw std::exception("невозможно запустить сервер на порту 0");
+		throw std::runtime_error("невозможно запустить сервер на порту 0");
 
 	if (vm.count("connect"))
 	{
 		boost::regex ip("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
 		boost::match_results<std::string::const_iterator> what;
 		if(0 == boost::regex_match(params->connect, what, ip, boost::match_default))
-			throw std::exception("указан неверный IP-адрес");
+			throw std::runtime_error("указан неверный IP-адрес");
 	}
 
 	if (!vm.count("serve"))

@@ -6,20 +6,20 @@ MasterGenerator::MasterGenerator(std::string address, uint16_t tcp_port,
 	flows(flows), ttl(ttl), infile(infile)
 {
 	if (!boost::filesystem::exists(infile))
-		throw std::exception("файл описания потока не существует");
+		throw std::runtime_error("файл описания потока не существует");
 
 	ptree pt;
 	try {
 		boost::property_tree::read_json(infile, pt);
 	} catch(std::exception&) {
-		throw std::exception("невалидный JSON в файле описания потока");
+		throw std::runtime_error("невалидный JSON в файле описания потока");
 	}
 
 	try {
 		parseTree(pt);
 	}
 	catch(std::exception) {
-		throw std::exception("некорректное описание потока");
+		throw std::runtime_error("некорректное описание потока");
 	}
 
 	ttl_timer = new boost::asio::deadline_timer(io_service);
