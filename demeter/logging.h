@@ -8,7 +8,7 @@
 
 #define INFO  BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::info)
 #define WARN  BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::warning)
-//#define ERROR BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::error)
+#define ERR BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::error)
 
 #define SYS_LOGFILE "demeter.log"
 

@@ -38,7 +38,6 @@ void SlaveTCPConnection::handle_read(const boost::system::error_code& error,
 	try {
 		boost::property_tree::read_json(ss, pt);
 	} catch(std::exception&) {
-		//ERROR << e.what();
 		WARN << "<" << client << "> Получен невалидный JSON";
 		WARN << "<" << client << "> Сброс соединения";
 		socket_.close();

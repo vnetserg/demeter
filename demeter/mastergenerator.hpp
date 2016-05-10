@@ -11,6 +11,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <utility>
 #include <vector>
@@ -35,19 +36,30 @@ public:
 	void run();
 
 private:
-	MasterGenerator(std::string address, uint16_t port,
+	MasterGenerator(std::string address, uint16_t tcp_port,
 		uint16_t flows, uint16_t ttl, std::string infile);
 	void parseTree(ptree pt);
+	void launchFlow(int ind, double started,
+		boost::asio::ip::udp::socket *socket,
+		boost::asio::deadline_timer *timer);
+	double now();
+	double secsToMoment(double ts);
+	void handleSend(const boost::system::error_code& error, std::size_t bytes_transferred);
+	void deleteSocket(boost::asio::ip::udp::socket *socket);
+	void stop();
 
 	std::string address, infile;
-	uint16_t port, flows, ttl;
+	uint16_t tcp_port, flows, ttl;
 
 	std::vector<segment> segments;
 	double length;
 	bool cycle;
 
 	boost::asio::io_service io_service;
-	boost::asio::ip::tcp::socket *tcp_socket;
-
 	std::string slave_json;
+
+	char buffer[2048];
+	boost::posix_time::ptime base_time;
+	boost::asio::ip::udp::endpoint slave_endpoint;
+	boost::asio::deadline_timer *ttl_timer;
 };
